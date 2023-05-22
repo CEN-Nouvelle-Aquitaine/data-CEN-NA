@@ -1,6 +1,6 @@
 # Foncier
 
-Les parcelles sont basées sur le cadastre Etalab
+Les parcelles sont basées sur le cadastre Etalab.
 
 
 
