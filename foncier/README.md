@@ -1,15 +1,47 @@
 # Foncier
 
-Les parcelles sont basées sur le cadastre Etalab.
+Le référentiel cadastral utilisé (géométrie,identifiant,contenance) est celui distibué par [Etalab](https://cadastre.data.gouv.fr/datasets/cadastre-etalab) et mis à jour trimestriellement.
+
+Ce référentiel peut cependant être contourné et faire l'objet d'une numérisation manuelle dans les cas suivants :
+
+* Maîtrise par le CEN d'une partie de parcelle (dans le cas d'un conventionnement) : la géométrie et la contenance maîtrisée de la parcelle concernée est numérisée dans une table spécifique de la base de données. 
+
+* Maîtrise par le CEN d'un bien non délimité : même processus que précédement
+
+* Division parcellaire récente : lors de l'achat par le CEN d'une parcelle,  il peut arriver qu'une division parcellaire soit opérée. La remontée de cette modification dans le référentiel pouvant être longue, une modification temporaire du référentiel est donc effectuée manuellement sur la base du document d'arpentage d'un géomètre expert précisant le nouvel identifiant et la nouvelle contenance des parcelles impactées.
 
 
+Les données métier Foncier du CEN Nouvelle-Aquitaine sont disponible en open-data sous forme de web service vecteur (WFS) avec les renseignements essentiels associés.
+
+URL d'accès :
+
+```
+https://opendata.cen-nouvelle-aquitaine.org/partage/wfs
+```
+<br>
+
+----
+
+<br>
 
 ## Parcelles en Maîtrise Foncière ou d'Usage par le CEN Nouvelle-Aquitaine
 
+<br>
+
 La requête ***mfu_cenna_detaillee.sql*** récupère l'ensemble des parcelles en Maîtrise Foncière ou d'Usage (MFU) par le CEN Nouvelle-Aquitaine avec des informations détaillées.
+
+En open-data, les parcelles sont mise à disposition par département (***mfu_cenna_16*** pour le département de la Charente par exemple)
+
+
+<br>
+
+### Dictionnaire des données
+
+<br>
 
 *Les champs avec astérisque ne sont pas véhiculés dans les données en open-data
 
+<br>
 
 | Nom du champ | Définition |
 |:---------|:---------------|
@@ -42,5 +74,12 @@ La requête ***mfu_cenna_detaillee.sql*** récupère l'ensemble des parcelles en
 | utilisateur* | Nom et prénom de l'utilisateur qui a saisi le dernier événement d'animation foncière asocié à la parcelle|
 | millesime_cadastre | Millesime du cadastre utilisé |
 | source_cadastre | Source du cadastre utilisé |
-| parcelle_partie | Source du cadastre utiliséIndique s'il s'agit d'une partie de parcelle ou non (s'il sagit d'une MFU de type Convention)  |
+| parcelle_partie | Indique s'il s'agit d'une partie de parcelle ou non (s'il sagit d'une MFU de type Convention)  |
 | parcelle_mc* | Indique s'il s'agit d'une parcelle maîtrisée via un dossier de mesures compensatoires ou non  |
+
+
+<br>
+
+## Sites gérés par le CEN Nouvelle-Aquitaine
+
+<br>
