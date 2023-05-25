@@ -12,7 +12,7 @@ SELECT ROW_NUMBER() over()::bigint as gid,
        commune.nom as nom_commmune,
        p.section,
        p.numero,
-       CASE WHEN p.parcelle_partie = true THEN pp.contenance ELSE p.contenance END AS contenance,
+       CASE WHEN p.parcelle_partie = true THEN pp.contenance WHEN p.parcelle_bnd = true THEN pp.contenance ELSE p.contenance END AS contenance,
        interet.libinteret,
        categorie.libcategorie AS categorie_mfu,
        statut.libstatut AS type_mfu,
@@ -35,9 +35,11 @@ SELECT ROW_NUMBER() over()::bigint as gid,
        p.millesime AS millesime_cadastre,
 	   CASE WHEN p.parcelle_ajout = true THEN 'DSI CEN-NA' WHEN p.parcelle_partie = true THEN 'DSI CEN-NA' ELSE 'Cadastre Etalab' END AS source_cadastre,
        CASE WHEN p.parcelle_partie = true THEN p.parcelle_partie ELSE false END AS parcelle_partie,
+       CASE WHEN p.parcelle_bnd = true THEN p.parcelle_bnd ELSE false END AS parcelle_bnd,
        CASE WHEN p.parcelle_mc = true THEN p.parcelle_mc ELSE false END AS parcelle_mc,
-       CASE WHEN p.parcelle_partie = true THEN pp.geom ELSE p.geom END AS geom
- FROM saisie.parcelle p
+       CASE WHEN p.parcelle_partie = true THEN pp.geom WHEN p.parcelle_bnd = true THEN pp.geom ELSE p.geom END AS geom
+
+FROM saisie.parcelle p
 JOIN mfu_actuelle ON mfu_actuelle.idparcelle = p.idparcelle
 JOIN referentiel.commune ON commune.idcommune = p.commune_ref
 JOIN referentiel.interet ON p.idinteret = interet.idinteret

@@ -4,9 +4,9 @@ Le référentiel cadastral utilisé (géométrie,identifiant,contenance) est cel
 
 Ce référentiel peut cependant être contourné et faire l'objet d'une numérisation manuelle dans les cas suivants :
 
-* Maîtrise par le CEN d'une partie de parcelle (dans le cas d'un conventionnement) : la géométrie et la contenance maîtrisée de la parcelle concernée est numérisée dans une table spécifique de la base de données. 
+* Maîtrise par le CEN d'une partie de parcelle (dans le cas d'un conventionnement) : la géométrie et la contenance maîtrisées de la partie de parcelle concernée sont stockées dans une table spécifique de la base de données. 
 
-* Maîtrise par le CEN d'un bien non délimité : même processus que précédement
+* Maîtrise par le CEN d'un bien non délimité (BND) : la contenance maîtrisée de la parcelle concernée ainsi que la géométrie initiale sont stockées dans une table spécifique de la base de données (la géométrie de la parcelle n'est pas modifiée s'agissant d'un bien non délimité)
 
 * Division parcellaire récente : lors de l'achat par le CEN d'une parcelle,  il peut arriver qu'une division parcellaire soit opérée. La remontée de cette modification dans le référentiel pouvant être longue, une modification temporaire du référentiel est donc effectuée manuellement sur la base du document d'arpentage d'un géomètre expert précisant le nouvel identifiant et la nouvelle contenance des parcelles impactées.
 
@@ -75,6 +75,7 @@ En open-data, les parcelles sont mise à disposition par département (***mfu_ce
 | millesime_cadastre | Millesime du cadastre utilisé |
 | source_cadastre | Source du cadastre utilisé |
 | parcelle_partie | Indique s'il s'agit d'une partie de parcelle ou non (s'il sagit d'une MFU de type Convention)  |
+| parcelle_bnd | Indique si la parcelle est un bien non délimité |
 | parcelle_mc* | Indique s'il s'agit d'une parcelle maîtrisée via un dossier de mesures compensatoires ou non  |
 
 
