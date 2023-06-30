@@ -1,8 +1,16 @@
-WITH mfu_actuelle AS (
-SELECT  idparcelle, mfu, dateevenement, idevenement, rank FROM saisie.parcelle_mfu_bilan
-JOIN (SELECT idparcelle AS idparc,max(dateevenement) AS maxdate FROM saisie.parcelle_mfu_bilan GROUP BY parcelle_mfu_bilan.idparcelle) max_date
-    ON parcelle_mfu_bilan.idparcelle = max_date.idparc AND parcelle_mfu_bilan.dateevenement = max_date.maxdate
-WHERE mfu = 'start')
+WITH bilan_date AS (
+SELECT idparcelle,mfu,max(dateevenement) AS max_date,min(dateevenement)AS min_date,max(rank) AS max_rank,max(idevenement) AS max_idevenement
+FROM saisie.parcelle_mfu_bilan pmb
+GROUP BY idparcelle,mfu),
+
+mfu_actuelle AS (
+SELECT idparcelle, mfu,max_date, min_date, max_rank,max_idevenement
+FROM
+  (SELECT idparcelle, mfu, max_date, min_date, max_rank,max_idevenement,
+          rank() OVER (PARTITION BY idparcelle ORDER BY max_rank DESC) AS pos
+     FROM bilan_date
+  ) AS ranking
+WHERE pos = 1 AND mfu = 'start')
 
 SELECT ROW_NUMBER() over()::bigint as gid,
        p.idparcelle,
@@ -16,7 +24,7 @@ SELECT ROW_NUMBER() over()::bigint as gid,
        interet.libinteret,
        categorie.libcategorie AS categorie_mfu,
        statut.libstatut AS type_mfu,
-       mfu_actuelle.dateevenement AS date_debut_mfu,
+       mfu_actuelle.min_date AS date_debut_mfu,
        site.codesite,
        site.nom_site,
        metasite.code_metasite,
@@ -43,7 +51,7 @@ FROM saisie.parcelle p
 JOIN mfu_actuelle ON mfu_actuelle.idparcelle = p.idparcelle
 JOIN referentiel.commune ON commune.idcommune = p.commune_ref
 JOIN referentiel.interet ON p.idinteret = interet.idinteret
-JOIN referentiel.evenement ON mfu_actuelle.idevenement = evenement.idevenement
+JOIN referentiel.evenement ON mfu_actuelle.max_idevenement = evenement.idevenement
 JOIN referentiel.statut ON evenement.idstatut = statut.idstatut
 JOIN referentiel.categorie ON statut.idcategorie = categorie.idcategorie
 LEFT JOIN saisie.site ON p.idsite = site.idsite
