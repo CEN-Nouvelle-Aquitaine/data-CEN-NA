@@ -1,16 +1,25 @@
-WITH bilan_date AS (
-SELECT idparcelle,mfu,max(dateevenement) AS max_date,min(dateevenement)AS min_date,max(rank) AS max_rank,max(idevenement) AS max_idevenement
+WITH bilan_evenement AS (
+ SELECT idparcelle, mfu,idevenement,rank
+FROM
+    ( SELECT idparcelle, mfu,idevenement,rank,rank() OVER (PARTITION BY idparcelle ORDER BY rank DESC) AS pos
+          FROM saisie.parcelle_mfu_bilan) AS ranking
+  WHERE pos = 1
+),
+
+bilan_date AS (
+SELECT idparcelle,mfu,max(dateevenement) AS max_date,min(dateevenement)AS min_date,max(rank) AS max_rank
 FROM saisie.parcelle_mfu_bilan pmb
 GROUP BY idparcelle,mfu),
 
 mfu_actuelle AS (
-SELECT idparcelle, mfu,max_date, min_date, max_rank,max_idevenement
+SELECT ranking.idparcelle, ranking.mfu,max_date, min_date, max_rank, be.idevenement
 FROM
-  (SELECT idparcelle, mfu, max_date, min_date, max_rank,max_idevenement,
+  (SELECT idparcelle, mfu, max_date, min_date, max_rank,
           rank() OVER (PARTITION BY idparcelle ORDER BY max_rank DESC) AS pos
      FROM bilan_date
   ) AS ranking
-WHERE pos = 1 AND mfu = 'start')
+JOIN bilan_evenement be ON be.idparcelle = ranking.idparcelle
+WHERE pos = 1 AND ranking.mfu = 'start')
 
 SELECT ROW_NUMBER() over()::bigint as gid,
        p.idparcelle,
