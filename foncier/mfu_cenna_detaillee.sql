@@ -63,5 +63,5 @@ JOIN referentiel.habitat ON p.idhabitat = habitat.idhabitat
 JOIN saisie.parcelle_evenement_bilan peb ON peb.idparcelle = p.idparcelle
 JOIN users ON peb.iduser = users.id
 LEFT JOIN saisie.lot ON p.idlot = lot.idlot
-LEFT JOIN saisie.lotdetail ld ON lot.idlot = ld.idlot AND mfu_actuelle.max_idevenement = ld.idevenement
+LEFT JOIN saisie.lotdetail_bilan ld ON lot.idlot = ld.idlot AND mfu_actuelle.max_idevenement = ld.idevenement
 ORDER BY p.idparcelle
