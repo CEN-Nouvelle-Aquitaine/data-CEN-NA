@@ -60,7 +60,7 @@ FROM saisie.parcelle p
 JOIN mfu_actuelle ON mfu_actuelle.idparcelle = p.idparcelle
 JOIN referentiel.commune ON commune.idcommune = p.commune_ref
 JOIN referentiel.interet ON p.idinteret = interet.idinteret
-JOIN referentiel.evenement ON mfu_actuelle.max_idevenement = evenement.idevenement
+JOIN referentiel.evenement ON mfu_actuelle.idevenement = evenement.idevenement
 JOIN referentiel.statut ON evenement.idstatut = statut.idstatut
 JOIN referentiel.categorie ON statut.idcategorie = categorie.idcategorie
 LEFT JOIN saisie.site ON p.idsite = site.idsite
@@ -72,5 +72,5 @@ JOIN referentiel.habitat ON p.idhabitat = habitat.idhabitat
 JOIN saisie.parcelle_evenement_bilan peb ON peb.idparcelle = p.idparcelle
 JOIN users ON peb.iduser = users.id
 LEFT JOIN saisie.lot ON p.idlot = lot.idlot
-LEFT JOIN saisie.lotdetail_bilan ld ON lot.idlot = ld.idlot AND mfu_actuelle.max_idevenement = ld.idevenement
+LEFT JOIN saisie.lotdetail_bilan ld ON lot.idlot = ld.idlot AND mfu_actuelle.idevenement = ld.idevenement
 ORDER BY p.idparcelle
