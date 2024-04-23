@@ -104,7 +104,12 @@ WINDOW fenetre_parcelle AS  (
                         UNBOUNDED FOLLOWING
                     ))
 ```
+Filtre à rajouter lors de la récupération totale des données :
 
+```sql
+-- on filtre bilan_evenement pour ne garder que les parcelles dont le dernier evenement mfu est de type start
+WHERE bilan_evenement.dateevenement = bilan_evenement.derniere_date_mfu AND bilan_evenement.mfu = 'start'
+```
 <br>
 
 --------
