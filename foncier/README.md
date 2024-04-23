@@ -69,54 +69,40 @@ Dès qu'un événément impactant la MFU sur une parcelle est intégré, supprim
 
 Pour récupérer les parcelles en MFU et prendre en compte tous les cas de figures énoncés juste avant, on va interroger cette table saisie.parcelle_mfu_bilan pour :
 
-* récupérer par parcelle et par action de MFU (start ou end) le dernier événément saisi
-* récupérer par parcelle et par action de MFU (start ou end) les dates et rangs maximaux et minimaux
+* récupérer toutes les données issues de la table parcelle_mfu_bilan
+* y associer par parcelle les premiers et derniers événéments liés
 * filtrer en ne gardant uniquement que les parcelles dont la dernière action de MFU est de type start
 
+On va utiliser pour cela les fonctions de fenêtrage de PostreSQL.
+
 ```sql
---1/ Récupération par parcelle et par mfu du dernier évenement
+WITH bilan_evenement AS
+(
+SELECT
+        idparcelle,
+        mfu,
+        idevenement,
+        dateevenement,
+        -- valeur min et max des dates de mfu par parcelle
+        last_value(dateevenement) OVER fenetre_parcelle  AS derniere_date_mfu,
+        first_value(dateevenement) OVER fenetre_parcelle AS premiere_date_mfu
 
-WITH bilan_evenement AS (
- SELECT idparcelle, mfu,idevenement,rank
 FROM
-    ( SELECT idparcelle, mfu,idevenement,rank,rank() OVER (PARTITION BY idparcelle ORDER BY rank DESC) AS pos
-          FROM saisie.parcelle_mfu_bilan) AS ranking
-  WHERE pos = 1
-),
+        saisie.parcelle_mfu_bilan
 
---2/ Récupération par parcelle et par mfu des dates et rangs minimaux et maximaux
-
-bilan_date AS (
-SELECT idparcelle,mfu,max(dateevenement) AS max_date,min(dateevenement)AS min_date,max(rank) AS max_rank
-FROM saisie.parcelle_mfu_bilan pmb
-GROUP BY idparcelle,mfu),
+--filtre optionnel pour avoir un état arrêté à une date donnée
+WHERE  dateevenement <= '2023-12-31'
 
 
---3/ Récupération des parcelles ACTUELLEMENT en MFU à partir de bilan date (jointure avec bilan_evenement pour récupérer l'idevenement associé) : on ne garde que les parcelles dont la mfu de l'événenement le plus récent est de type start
-
-mfu_actuelle AS (
-SELECT ranking.idparcelle, ranking.mfu,max_date, min_date, max_rank, be.idevenement
-FROM
-  (SELECT idparcelle, mfu, max_date, min_date, max_rank,
-          rank() OVER (PARTITION BY idparcelle ORDER BY max_rank DESC) AS pos
-     FROM bilan_date
-  ) AS ranking
-JOIN bilan_evenement be ON be.idparcelle = ranking.idparcelle
-WHERE pos = 1 AND ranking.mfu = 'start')
-
-
---3 variante/ Récupération des parcelles en MFU A UNE DATE DONNEE (exemple au 31/12/2022) à partir de bilan date (jointure avec bilan_evenement pour récupérer l'idevenement associé) : on ne garde que les parcelles dont la mfu de l'événenement le plus ancien est de type start et plus récent que la date choisie
-
-mfu_date AS (
-SELECT ranking.idparcelle, ranking.mfu,max_date, min_date, max_rank, be.idevenement
-FROM
-  (SELECT idparcelle, mfu, max_date, min_date, max_rank,
-          rank() OVER (PARTITION BY idparcelle ORDER BY max_rank DESC) AS pos
-     FROM bilan_date
-     WHERE (mfu = 'start' AND min_date <= '2022-12-31') OR (mfu = 'end' AND max_date <= '2022-12-31')
-  ) AS ranking
-JOIN bilan_evenement be ON be.idparcelle = ranking.idparcelle
-WHERE pos = 1 AND ranking.mfu = 'start')
+WINDOW fenetre_parcelle AS  (
+                        PARTITION BY idparcelle
+                        ORDER BY dateevenement ASC
+                        RANGE
+                        BETWEEN
+                         UNBOUNDED PRECEDING
+                        AND
+                        UNBOUNDED FOLLOWING
+                    ))
 ```
 
 <br>
